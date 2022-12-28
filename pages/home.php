@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+if(!isset($_SESSION['addstudent_csrf_form'])){
+  $_SESSION['addstudent_csrf_token']= bin2hex(random_bytes(32));
+}
+
 $database = new PDO(
   'mysql:host=devkinsta_db;
   dbname=User_Auth',
@@ -15,8 +19,11 @@ $students = $query->fetchAll();
 
 if($_SERVER['REQUEST_METHOD']=='POST'){
 
-
+  
   if($_POST['action']==='add'){
+    if($_SESSION['addstudent_csrf_token']!=$_SESSION['addstudent_csrf_token']){
+      die('Good Try');
+    }
     $statement=$database->prepare("INSERT INTO students (`name`) VALUES (:name) ");
     $statement->execute([
         'name'=> $_POST['student']
@@ -34,7 +41,8 @@ elseif($_POST['action']==='delete'){
 
     header('Location:/');
     exit;
-}
+} 
+
 }
 ?>
 
@@ -94,6 +102,7 @@ elseif($_POST['action']==='delete'){
                 value="add"
                 />
                 <button class="btn btn-primary btn-sm rounded ms-2">Add</button>
+                <input type="hidden" name="addstudent_csrf_token" value="<?=$_SESSION['addstudent_csrf_token'];?>">
             </form>
         </div><!--mt-4 d-flex-->
       </div><!--card-body-->
