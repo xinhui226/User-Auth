@@ -24,6 +24,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     if($_SESSION['addstudent_csrf_token']!=$_SESSION['addstudent_csrf_token']){
       die('Good Try');
     }
+    unset($_SESSION['addstudent_csrf_token']);
     $statement=$database->prepare("INSERT INTO students (`name`) VALUES (:name) ");
     $statement->execute([
         'name'=> $_POST['student']
